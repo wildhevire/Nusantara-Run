@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
@@ -14,7 +16,7 @@ public class PlayerController : MonoBehaviour
    
 
     Rigidbody2D rb;
-    Animator animator;
+    public Animator animator;
     [SerializeField ]AnimationClip runAnim;
 
     [SerializeField] bool isGrounded = true;
@@ -33,9 +35,16 @@ public class PlayerController : MonoBehaviour
     Image img;
 
 
+    [SerializeField] Button btnSprint;
+    [SerializeField] Button btnJump;
+
+    public UnityEvent longClick;
 
     public float energy = 10;
 
+    public bool isSprint;
+
+    
     // Start is called before the first frame update
     void Awake()
     {
@@ -43,11 +52,23 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         slider = staminaBar.GetComponent<Slider>();
         img = staminaBarGO.GetComponent<Image>();
+
+
+        btnJump = GameObject.Find("Jump").GetComponent<Button>();
+        btnSprint = GameObject.Find("Sprint").GetComponent<Button>();
+
+
+        btnJump.onClick.AddListener(Jump);
+        
+        //btnSprint.onClick.AddListener(Sprint);
+        
     }
 
     // Update is called once per frame
     void Update()
     {
+
+        Unsprint();
         
         slider.value = stamina / 100;
 
@@ -59,46 +80,38 @@ public class PlayerController : MonoBehaviour
         {
             img.color = Color.red;
         }
-        stamina -= Time.deltaTime * 5;
+        //stamina -= Time.deltaTime * 5;
+
+
+        if (stamina <= .5f)
+        {
+            //slider.colors.
+        }
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            Jump();
+        }
+
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            Sprint();
+        }
+
+
+
+        if (Input.GetKeyUp(KeyCode.RightArrow))
+        {
+            Unsprint();
+
+        }
         if (isGrounded)
         {
 
 
             
-            if (stamina <= .5f)
-            {
-                //slider.colors.
-            }
 
-            if (Input.GetButtonDown("Jump"))
-            {
-                
-                rb.velocity += Vector2.up * jumpSpeed;
-                isGrounded = false;
-                //animator.Play("MidAir");
-                animator.SetBool("isGround", false);
-            }
             
-            if (Input.GetKey(KeyCode.RightArrow))
-            {
-                float t = .1f * Time.deltaTime;
-                animator.speed = Mathf.Lerp(sprintAnimSpeed, 1, t);
-                
-                //runAnim.SampleAnimation(gameObject, 120);
-                //rb.velocity += Vector2.right * sprintSpeed;
-                transform.Translate(Vector3.right * sprintSpeed * Time.deltaTime);
-
-            }
-            
-
-
-            if (Input.GetKeyUp(KeyCode.RightArrow))
-            {
-
-                stamina -= Time.deltaTime * 10;
-                float t = -.1f * Time.deltaTime;
-                animator.speed = Mathf.Lerp(1, sprintAnimSpeed, t);
-            }
 
 
 
@@ -131,8 +144,40 @@ public class PlayerController : MonoBehaviour
 
 
     }
+    void Jump()
+    {
+        if (isGrounded)
+        {
+            rb.velocity += Vector2.up * jumpSpeed;
+            isGrounded = false;
+            //animator.Play("MidAir");
+            animator.SetBool("isGround", false);
+        }
+        
+    }
+    public void Sprint()
+    {
+        if (isGrounded)
+        {
+            stamina -= Time.deltaTime * 10;
+            float t = .1f * Time.deltaTime;
+            animator.speed = Mathf.Lerp(sprintAnimSpeed, 1, t);
 
+            //runAnim.SampleAnimation(gameObject, 120);
+            //rb.velocity += Vector2.right * sprintSpeed;
+            transform.Translate(Vector3.right * sprintSpeed * Time.deltaTime);
+        }
+    }
 
+    public void Unsprint()
+    {
+        if (isGrounded)
+        {
+            stamina -= Time.deltaTime * 5;
+            float t = -.1f * Time.deltaTime;
+            animator.speed = Mathf.Lerp(1, sprintAnimSpeed, t);
+        }
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -165,5 +210,6 @@ public class PlayerController : MonoBehaviour
             stamina += energy;
         }
     }
+
 }
         

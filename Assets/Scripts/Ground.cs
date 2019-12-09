@@ -67,6 +67,9 @@ public class Ground : MonoBehaviour
         {
             //groundList[0].transform.localPosition = new Vector3(startX, -1f);
             arraySwap(groundList);
+
+           
+            
         }
 
 
@@ -164,13 +167,18 @@ public class Ground : MonoBehaviour
             something = ground;
             //currentEnteredObject = ground;
         }
-        GameObject tmp = Instantiate(something,position: new Vector3(startX, -1), Quaternion.identity);
+        GameObject tmp = Instantiate(something,transform);
+        tmp.transform.localPosition = new Vector3(startX,-1f,0) ;
         for (int i = 0; i <= arr.Length -1 ; i++)
         {
             if(i < arr.Length - 1) 
                 arr[i] = arr[i + 1];
             else
-            arr[arr.Length-1] = tmp;
+            {
+                arr[arr.Length - 1] = tmp;
+                
+            }
+            
             
         }
         
